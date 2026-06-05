@@ -14,7 +14,6 @@ const modalTitle = document.getElementById('modalTitle');
 const formMode = document.getElementById('formMode');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
-const toastIcon = document.getElementById('toastIcon');
 
 // Form Inputs
 const inputId = document.getElementById('studentId');
@@ -33,13 +32,6 @@ addStudentBtn.addEventListener('click', openAddModal);
 closeModalBtn.addEventListener('click', closeModal);
 cancelBtn.addEventListener('click', closeModal);
 studentForm.addEventListener('submit', handleFormSubmit);
-
-// Close modal when clicking outside
-studentModal.addEventListener('click', (e) => {
-    if (e.target === studentModal) {
-        closeModal();
-    }
-});
 
 // API Calls
 async function fetchStudents() {
@@ -84,7 +76,7 @@ async function handleFormSubmit(e) {
             throw new Error(errorData.detail || 'Failed to save student');
         }
 
-        showToast(isEditMode ? 'Student updated successfully!' : 'Student added successfully!');
+        showToast(isEditMode ? 'Student updated successfully' : 'Student added successfully');
         closeModal();
         fetchStudents();
         
@@ -95,7 +87,7 @@ async function handleFormSubmit(e) {
 }
 
 async function deleteStudent(id) {
-    if (!confirm('Are you sure you want to delete this student?')) return;
+    if (!confirm('Are you sure you want to delete this student record?')) return;
     
     try {
         const response = await fetch(`${API_URL}/${id}`, {
@@ -104,7 +96,7 @@ async function deleteStudent(id) {
         
         if (!response.ok) throw new Error('Failed to delete student');
         
-        showToast('Student deleted successfully!');
+        showToast('Student deleted successfully');
         fetchStudents();
         
     } catch (error) {
@@ -131,15 +123,19 @@ function renderStudents() {
     students.forEach(student => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>#${student.id}</td>
-            <td style="font-weight: 500;">${student.name}</td>
+            <td style="font-weight: 500;">${student.id}</td>
+            <td>${student.name}</td>
             <td>${student.age}</td>
-            <td>${student.course}</td>
             <td>
-                <div class="action-buttons">
-                    <button class="action-btn-edit" onclick="openEditModal(${student.id})">Edit</button>
-                    <button class="btn-danger btn" onclick="deleteStudent(${student.id})">Delete</button>
-                </div>
+                <span class="badge badge-light">${student.course}</span>
+            </td>
+            <td class="text-right">
+                <button class="btn btn-icon edit-icon" onclick="openEditModal(${student.id})" title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+                <button class="btn btn-icon" onclick="deleteStudent(${student.id})" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
             </td>
         `;
         studentTableBody.appendChild(row);
@@ -148,11 +144,11 @@ function renderStudents() {
 
 // Modal Management
 function openAddModal() {
-    modalTitle.textContent = 'Add New Student';
+    modalTitle.textContent = 'Create Student';
     formMode.value = 'add';
     studentForm.reset();
     inputId.readOnly = false;
-    studentModal.classList.add('active');
+    studentModal.classList.add('show');
 }
 
 window.openEditModal = function(id) {
@@ -163,28 +159,32 @@ window.openEditModal = function(id) {
     formMode.value = 'edit';
     
     inputId.value = student.id;
-    inputId.readOnly = true; // Don't allow changing ID on edit
+    inputId.readOnly = true; 
     inputName.value = student.name;
     inputAge.value = student.age;
     inputCourse.value = student.course;
     
-    studentModal.classList.add('active');
+    studentModal.classList.add('show');
 }
 
 function closeModal() {
-    studentModal.classList.remove('active');
+    studentModal.classList.remove('show');
 }
 
 // Toast Notification
 function showToast(message, type = 'success') {
     toastMessage.textContent = message;
     
+    const iconSvg = type === 'error' 
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    
+    document.getElementById('toastIcon').innerHTML = iconSvg;
+    
     if (type === 'error') {
         toast.classList.add('error');
-        toastIcon.textContent = '✕';
     } else {
         toast.classList.remove('error');
-        toastIcon.textContent = '✓';
     }
     
     toast.classList.add('show');
