@@ -15,6 +15,10 @@ const formMode = document.getElementById('formMode');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
 
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const themeIconLight = document.getElementById('themeIconLight');
+const themeIconDark = document.getElementById('themeIconDark');
+
 // Form Inputs
 const inputId = document.getElementById('studentId');
 const inputName = document.getElementById('studentName');
@@ -25,13 +29,41 @@ const inputCourse = document.getElementById('studentCourse');
 let students = [];
 
 // Initialize
-document.addEventListener('DOMContentLoaded', fetchStudents);
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    fetchStudents();
+});
 
 // Event Listeners
 addStudentBtn.addEventListener('click', openAddModal);
 closeModalBtn.addEventListener('click', closeModal);
 cancelBtn.addEventListener('click', closeModal);
 studentForm.addEventListener('submit', handleFormSubmit);
+if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+
+// Theme Management
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    setTheme(currentTheme);
+}
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    
+    if (theme === 'dark') {
+        themeIconLight.style.display = 'none';
+        themeIconDark.style.display = 'block';
+    } else {
+        themeIconLight.style.display = 'block';
+        themeIconDark.style.display = 'none';
+    }
+}
 
 // API Calls
 async function fetchStudents() {
