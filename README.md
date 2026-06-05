@@ -1,5 +1,7 @@
 <div align="center">
 
+![FastAPI CRUD Banner](assets/banner.png)
+
 # 🚀 FastAPI Student CRUD API
 
 A blazing-fast, lightweight RESTful API built with [FastAPI](https://fastapi.tiangolo.com/) to manage student records. This project demonstrates core CRUD (Create, Read, Update, Delete) operations with seamless data validation using Pydantic.
