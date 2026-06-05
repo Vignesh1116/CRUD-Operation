@@ -5,7 +5,6 @@ const studentTableBody = document.getElementById('studentTableBody');
 const studentTable = document.getElementById('studentTable');
 const emptyState = document.getElementById('emptyState');
 const studentCountBadge = document.getElementById('studentCountBadge');
-const visibleCount = document.getElementById('visibleCount');
 const studentModal = document.getElementById('studentModal');
 const addStudentBtn = document.getElementById('addStudentBtn');
 const closeModalBtn = document.getElementById('closeModalBtn');
@@ -16,11 +15,6 @@ const formMode = document.getElementById('formMode');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
 const tableSearchInput = document.getElementById('tableSearchInput');
-
-// KPI Elements
-const kpiTotalStudents = document.getElementById('kpiTotalStudents');
-const kpiActiveCourses = document.getElementById('kpiActiveCourses');
-const kpiAvgAge = document.getElementById('kpiAvgAge');
 
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const themeIconLight = document.getElementById('themeIconLight');
@@ -35,7 +29,6 @@ const inputCourse = document.getElementById('studentCourse');
 // State
 let students = [];
 let filteredStudents = [];
-let chartInstance = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -60,7 +53,6 @@ function initTheme() {
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     setTheme(currentTheme);
-    if(chartInstance) updateChartTheme();
 }
 
 function setTheme(theme) {
@@ -85,7 +77,7 @@ async function fetchStudents() {
         students = await response.json();
         filteredStudents = [...students];
         
-        updateDashboard();
+        renderTable();
     } catch (error) {
         showToast('Error loading students', 'error');
         console.error(error);
@@ -152,12 +144,6 @@ window.deleteStudent = async function(id) {
 }
 
 // Core Logic
-function updateDashboard() {
-    renderTable();
-    updateKPIs();
-    renderChart();
-}
-
 function handleSearch(e) {
     const searchTerm = e.target.value.toLowerCase();
     filteredStudents = students.filter(student => 
@@ -170,8 +156,7 @@ function handleSearch(e) {
 
 // UI Rendering
 function renderTable() {
-    studentCountBadge.textContent = `${students.length} total`;
-    visibleCount.textContent = filteredStudents.length;
+    studentCountBadge.textContent = `${filteredStudents.length} students`;
     
     if (filteredStudents.length === 0) {
         studentTable.style.display = 'none';
@@ -185,7 +170,6 @@ function renderTable() {
     studentTableBody.innerHTML = '';
     
     filteredStudents.forEach(student => {
-        // Dynamic badge color based on course name hash
         const badgeClass = getBadgeColor(student.course);
         
         const row = document.createElement('tr');
@@ -215,92 +199,9 @@ function renderTable() {
     });
 }
 
-function updateKPIs() {
-    kpiTotalStudents.textContent = students.length;
-    
-    const uniqueCourses = new Set(students.map(s => s.course)).size;
-    kpiActiveCourses.textContent = uniqueCourses;
-    
-    if(students.length > 0) {
-        const totalAge = students.reduce((sum, s) => sum + s.age, 0);
-        kpiAvgAge.textContent = Math.round(totalAge / students.length);
-    } else {
-        kpiAvgAge.textContent = "0";
-    }
-}
-
-function renderChart() {
-    const ctx = document.getElementById('courseChart').getContext('2d');
-    
-    // Aggregate data
-    const courseCounts = {};
-    students.forEach(s => {
-        courseCounts[s.course] = (courseCounts[s.course] || 0) + 1;
-    });
-    
-    const labels = Object.keys(courseCounts);
-    const data = Object.values(courseCounts);
-    
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const textColor = isDark ? '#94a3b8' : '#64748b';
-    const gridColor = isDark ? '#1e293b' : '#e2e8f0';
-
-    if (chartInstance) {
-        chartInstance.data.labels = labels;
-        chartInstance.data.datasets[0].data = data;
-        chartInstance.update();
-        return;
-    }
-
-    chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Enrolled Students',
-                data: data,
-                backgroundColor: 'rgba(37, 99, 235, 0.8)',
-                borderRadius: 4,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1, color: textColor },
-                    grid: { color: gridColor, drawBorder: false }
-                },
-                x: {
-                    ticks: { color: textColor },
-                    grid: { display: false, drawBorder: false }
-                }
-            }
-        }
-    });
-}
-
-function updateChartTheme() {
-    if(!chartInstance) return;
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const textColor = isDark ? '#94a3b8' : '#64748b';
-    const gridColor = isDark ? '#1e293b' : '#e2e8f0';
-    
-    chartInstance.options.scales.y.ticks.color = textColor;
-    chartInstance.options.scales.y.grid.color = gridColor;
-    chartInstance.options.scales.x.ticks.color = textColor;
-    chartInstance.update();
-}
-
 // Helpers
 function getBadgeColor(courseName) {
     const badges = ['badge-blue', 'badge-success', 'badge-warning', 'badge-purple'];
-    // Simple hash to consistently assign a color to a specific course
     let hash = 0;
     for (let i = 0; i < courseName.length; i++) {
         hash = courseName.charCodeAt(i) + ((hash << 5) - hash);
