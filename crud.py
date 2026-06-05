@@ -1,7 +1,20 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
+import os
 
 app = FastAPI()
+
+# Ensure static directory exists
+os.makedirs("static", exist_ok=True)
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def read_root():
+    return FileResponse("static/index.html")
 
 # Temporary storage
 students = []
@@ -9,7 +22,7 @@ students = []
 # Schema
 class Student(BaseModel):
     id: int
-    name: str
+    name: str 
     age: int
     course: str
 

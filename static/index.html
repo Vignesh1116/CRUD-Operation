@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Student Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Student Dashboard <span class="badge">Pro</span></h1>
+                <p>Manage your students seamlessly with the FastAPI backend.</p>
+            </div>
+            <button id="addStudentBtn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Student
+            </button>
+        </header>
+
+        <main class="dashboard-main">
+            <!-- Student List Section -->
+            <div class="student-list-container glass-card">
+                <div class="card-header">
+                    <h2>Enrolled Students</h2>
+                    <span id="studentCount" class="count-badge">0</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="student-table" id="studentTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Course</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- Rows will be populated by JS -->
+                        </tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <h3>No Students Found</h3>
+                        <p>Click "Add Student" to create a new record.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Add/Edit Student -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Student</h2>
+                <button id="closeModalBtn" class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="studentForm" class="student-form">
+                <input type="hidden" id="formMode" value="add">
+                
+                <div class="form-group">
+                    <label for="studentId">Student ID</label>
+                    <input type="number" id="studentId" name="studentId" required placeholder="e.g., 101">
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentName">Full Name</label>
+                    <input type="text" id="studentName" name="studentName" required placeholder="e.g., Jane Doe">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="studentAge">Age</label>
+                        <input type="number" id="studentAge" name="studentAge" required placeholder="e.g., 22" min="10" max="100">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="studentCourse">Course</label>
+                        <input type="text" id="studentCourse" name="studentCourse" required placeholder="e.g., Computer Science">
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <span id="toastIcon">✓</span>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
