@@ -4,17 +4,16 @@ const API_URL = '/students';
 const studentTableBody = document.getElementById('studentTableBody');
 const studentTable = document.getElementById('studentTable');
 const emptyState = document.getElementById('emptyState');
-const studentCountBadge = document.getElementById('studentCountBadge');
-const studentModal = document.getElementById('studentModal');
-const addStudentBtn = document.getElementById('addStudentBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const cancelBtn = document.getElementById('cancelBtn');
 const studentForm = document.getElementById('studentForm');
-const modalTitle = document.getElementById('modalTitle');
+const formTitle = document.getElementById('formTitle');
+const formSubtitle = document.getElementById('formSubtitle');
 const formMode = document.getElementById('formMode');
+const saveBtn = document.getElementById('saveBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
-const tableSearchInput = document.getElementById('tableSearchInput');
 
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const themeIconLight = document.getElementById('themeIconLight');
@@ -28,7 +27,6 @@ const inputCourse = document.getElementById('studentCourse');
 
 // State
 let students = [];
-let filteredStudents = [];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,12 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Event Listeners
-addStudentBtn.addEventListener('click', openAddModal);
-closeModalBtn.addEventListener('click', closeModal);
-cancelBtn.addEventListener('click', closeModal);
 studentForm.addEventListener('submit', handleFormSubmit);
+refreshBtn.addEventListener('click', fetchStudents);
+cancelBtn.addEventListener('click', resetForm);
 if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
-tableSearchInput.addEventListener('input', handleSearch);
 
 // Theme Management
 function initTheme() {
@@ -75,8 +71,6 @@ async function fetchStudents() {
         if (!response.ok) throw new Error('Failed to fetch students');
         
         students = await response.json();
-        filteredStudents = [...students];
-        
         renderTable();
     } catch (error) {
         showToast('Error loading students', 'error');
@@ -114,8 +108,7 @@ async function handleFormSubmit(e) {
         }
 
         showToast(isEditMode ? 'Student record updated' : 'New student added');
-        closeModal();
-        tableSearchInput.value = ''; // clear search on add/edit
+        resetForm();
         fetchStudents();
         
     } catch (error) {
@@ -125,7 +118,7 @@ async function handleFormSubmit(e) {
 }
 
 window.deleteStudent = async function(id) {
-    if (!confirm('Are you sure you want to delete this student record? This action cannot be undone.')) return;
+    if (!confirm('Are you sure you want to delete this student record?')) return;
     
     try {
         const response = await fetch(`${API_URL}/${id}`, {
@@ -134,7 +127,13 @@ window.deleteStudent = async function(id) {
         
         if (!response.ok) throw new Error('Failed to delete student');
         
-        showToast('Student deleted successfully');
+        showToast('Student deleted');
+        
+        // If we are currently editing the deleted student, reset the form
+        if (formMode.value === 'edit' && parseInt(inputId.value) === id) {
+            resetForm();
+        }
+        
         fetchStudents();
         
     } catch (error) {
@@ -143,22 +142,9 @@ window.deleteStudent = async function(id) {
     }
 }
 
-// Core Logic
-function handleSearch(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    filteredStudents = students.filter(student => 
-        student.name.toLowerCase().includes(searchTerm) || 
-        student.course.toLowerCase().includes(searchTerm) ||
-        student.id.toString().includes(searchTerm)
-    );
-    renderTable();
-}
-
 // UI Rendering
 function renderTable() {
-    studentCountBadge.textContent = `${filteredStudents.length} students`;
-    
-    if (filteredStudents.length === 0) {
+    if (students.length === 0) {
         studentTable.style.display = 'none';
         emptyState.style.display = 'flex';
         return;
@@ -169,73 +155,58 @@ function renderTable() {
     
     studentTableBody.innerHTML = '';
     
-    filteredStudents.forEach(student => {
-        const badgeClass = getBadgeColor(student.course);
-        
+    students.forEach(student => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td style="font-weight: 500; color: var(--text-primary);">#${student.id}</td>
-            <td style="font-weight: 500;">${student.name}</td>
-            <td>${student.age} yrs</td>
+            <td><span class="id-badge">${student.id}</span></td>
+            <td class="student-name">${student.name}</td>
+            <td>${student.course}</td>
+            <td>${student.age}</td>
             <td>
-                <span class="badge ${badgeClass}">${student.course}</span>
-            </td>
-            <td>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <div style="width:8px; height:8px; border-radius:50%; background-color:var(--success-color)"></div>
-                    Enrolled
+                <div class="action-buttons">
+                    <button class="btn-action edit" onclick="populateEditForm(${student.id})">Edit</button>
+                    <button class="btn-action delete" onclick="deleteStudent(${student.id})">Delete</button>
                 </div>
-            </td>
-            <td class="text-right">
-                <button class="btn btn-icon edit-icon" onclick="openEditModal(${student.id})" title="Edit Record">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                </button>
-                <button class="btn btn-icon delete-icon" onclick="deleteStudent(${student.id})" title="Delete Record">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                </button>
             </td>
         `;
         studentTableBody.appendChild(row);
     });
 }
 
-// Helpers
-function getBadgeColor(courseName) {
-    const badges = ['badge-blue', 'badge-success', 'badge-warning', 'badge-purple'];
-    let hash = 0;
-    for (let i = 0; i < courseName.length; i++) {
-        hash = courseName.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return badges[Math.abs(hash) % badges.length];
-}
-
-// Modal Management
-function openAddModal() {
-    modalTitle.textContent = 'Create Student Record';
-    formMode.value = 'add';
-    studentForm.reset();
-    inputId.readOnly = false;
-    studentModal.classList.add('show');
-}
-
-window.openEditModal = function(id) {
+// Form Management (No Modals)
+window.populateEditForm = function(id) {
     const student = students.find(s => s.id === id);
     if (!student) return;
     
-    modalTitle.textContent = 'Edit Student Record';
+    // Update UI headers
+    formTitle.textContent = 'Edit Student Record';
+    formSubtitle.textContent = `Updating information for ${student.name}`;
     formMode.value = 'edit';
+    saveBtn.textContent = 'Update Record';
+    cancelBtn.style.display = 'inline-flex';
     
+    // Populate fields
     inputId.value = student.id;
     inputId.readOnly = true; 
     inputName.value = student.name;
     inputAge.value = student.age;
     inputCourse.value = student.course;
     
-    studentModal.classList.add('show');
+    // Scroll to top if on mobile
+    if (window.innerWidth <= 900) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 }
 
-function closeModal() {
-    studentModal.classList.remove('show');
+function resetForm() {
+    studentForm.reset();
+    formMode.value = 'add';
+    inputId.readOnly = false;
+    
+    formTitle.textContent = 'Student Registration';
+    formSubtitle.textContent = 'Add a new student or update an existing record.';
+    saveBtn.textContent = 'Save Record';
+    cancelBtn.style.display = 'none';
 }
 
 // Toast Notification

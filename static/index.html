@@ -3,153 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudentHub</title>
+    <title>StudentCore SIS</title>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="layout">
-        <!-- Sticky Top Header -->
+        <!-- Header -->
         <header class="top-header">
             <div class="header-container">
                 <!-- Brand -->
                 <div class="header-brand">
                     <div class="logo-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                        <!-- Graduation Cap Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
                     </div>
-                    <h2>StudentHub</h2>
+                    <h2>StudentCore <span class="badge-sis">SIS</span></h2>
                 </div>
-                
-                <!-- Central Navigation -->
-                <nav class="top-nav">
-                    <a href="#" class="nav-link active">Students</a>
-                    <a href="#" class="nav-link">Courses</a>
-                    <a href="#" class="nav-link">Reports</a>
-                    <a href="#" class="nav-link">Settings</a>
-                </nav>
                 
                 <!-- User Profile & Actions -->
                 <div class="user-profile">
-                    <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode">
-                        <svg id="themeIconLight" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                        <svg id="themeIconDark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <button id="themeToggleBtn" class="btn-icon theme-btn" title="Toggle Dark/Light Mode">
+                        <svg id="themeIconLight" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <svg id="themeIconDark" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                     </button>
-                    <div class="notification-icon">
-                        <span class="notification-badge"></span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                    </div>
-                    <div class="avatar-container">
-                        <div class="avatar">A</div>
+                    <div class="separator"></div>
+                    <div class="avatar-group">
+                        <div class="avatar">AD</div>
+                        <span class="user-name">Admin User</span>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
+        <!-- Main Content 2-Column Layout -->
         <main class="content-container">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Students</h1>
-                    <p class="page-description">Manage student records and enrollments efficiently.</p>
-                </div>
-                <button id="addStudentBtn" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Add Student
-                </button>
-            </div>
-
-            <!-- Data Table Card -->
-            <div class="card table-wrapper">
-                <div class="card-header space-between">
-                    <div class="header-left">
-                        <h2 class="card-title">Student Directory</h2>
-                        <span class="badge badge-light" id="studentCountBadge">0 students</span>
+            <!-- Left Column: Form -->
+            <aside class="left-panel">
+                <div class="card form-card">
+                    <div class="form-header">
+                        <h3 id="formTitle">Student Registration</h3>
+                        <p id="formSubtitle">Add a new student or update an existing record.</p>
                     </div>
-                    <div class="table-controls">
-                        <div class="table-search">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            <input type="text" id="tableSearchInput" placeholder="Filter by name or course...">
-                        </div>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table class="data-table" id="studentTable">
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Full Name</th>
-                                <th>Age</th>
-                                <th>Enrolled Course</th>
-                                <th>Status</th>
-                                <th class="text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentTableBody">
-                            <!-- Populated via JS -->
-                        </tbody>
-                    </table>
-                    <div id="emptyState" class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                        <h3>No students found</h3>
-                        <p>We couldn't find what you were looking for.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modal Form -->
-    <div id="studentModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="modalTitle" class="modal-title">Create Student</h3>
-                    <button type="button" class="btn-close" id="closeModalBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
-                <div class="modal-body">
                     <form id="studentForm">
                         <input type="hidden" id="formMode" value="add">
                         
-                        <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label for="studentId" class="form-label">ID <span class="required">*</span></label>
-                                <input type="number" id="studentId" class="form-control" required placeholder="e.g. 1001">
-                            </div>
-                            <div class="form-group col-md-8">
-                                <label for="studentName" class="form-label">Full Name <span class="required">*</span></label>
-                                <input type="text" id="studentName" class="form-control" required placeholder="e.g. Jane Smith">
-                            </div>
+                        <div class="form-group">
+                            <label for="studentId" class="form-label">Student ID</label>
+                            <input type="number" id="studentId" class="form-control" required placeholder="e.g. 101">
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label for="studentAge" class="form-label">Age <span class="required">*</span></label>
-                                <input type="number" id="studentAge" class="form-control" required placeholder="21" min="10" max="100">
-                            </div>
-                            
-                            <div class="form-group col-md-8">
-                                <label for="studentCourse" class="form-label">Course <span class="required">*</span></label>
-                                <input type="text" id="studentCourse" class="form-control" required placeholder="Computer Science" list="courseList">
-                                <datalist id="courseList">
-                                    <option value="Computer Science">
-                                    <option value="Mathematics">
-                                    <option value="Physics">
-                                    <option value="Biology">
-                                    <option value="Business">
-                                </datalist>
-                            </div>
+                        <div class="form-group">
+                            <label for="studentName" class="form-label">Full Name</label>
+                            <input type="text" id="studentName" class="form-control" required placeholder="John Doe">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="studentAge" class="form-label">Age</label>
+                            <input type="number" id="studentAge" class="form-control" required placeholder="20" min="10" max="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="studentCourse" class="form-label">Program / Course</label>
+                            <input type="text" id="studentCourse" class="form-control" required placeholder="Computer Science">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelBtn" style="display: none;">Cancel</button>
+                            <button type="submit" class="btn btn-primary full-width" id="saveBtn">Save Record</button>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" id="cancelBtn">Cancel</button>
-                    <button type="submit" form="studentForm" class="btn btn-primary" id="saveBtn">Save Record</button>
+            </aside>
+
+            <!-- Right Column: Table -->
+            <section class="right-panel">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title">Enrolled Directory</h1>
+                        <p class="page-description">Manage all active student profiles.</p>
+                    </div>
+                    <button id="refreshBtn" class="btn btn-outline btn-refresh">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        Refresh
+                    </button>
                 </div>
-            </div>
-        </div>
+
+                <div class="card table-wrapper">
+                    <div class="table-container">
+                        <table class="data-table" id="studentTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>STUDENT NAME</th>
+                                    <th>COURSE / PROGRAM</th>
+                                    <th>AGE</th>
+                                    <th class="text-right">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                        <div id="emptyState" class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                            <h3>No students found</h3>
+                            <p>Use the registration form to add students.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <!-- Notification Toast -->
