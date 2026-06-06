@@ -1,3 +1,9 @@
+// Auth Check
+const token = localStorage.getItem('token');
+if (!token) {
+    window.location.href = '/static/login.html';
+}
+
 const API_URL = '/students';
 
 // DOM Elements
@@ -24,6 +30,11 @@ const confirmModal = document.getElementById('confirmModal');
 const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
+// Auth Elements
+const logoutBtn = document.getElementById('logoutBtn');
+const userNameDisplay = document.getElementById('userNameDisplay');
+const userAvatar = document.getElementById('userAvatar');
+
 // Form Inputs
 const inputId = document.getElementById('studentId');
 const inputName = document.getElementById('studentName');
@@ -37,6 +48,7 @@ let studentToDelete = null;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
+    decodeTokenAndDisplayUser();
     fetchStudents();
 });
 
@@ -48,6 +60,24 @@ if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
 
 cancelDeleteBtn.addEventListener('click', closeConfirmModal);
 confirmDeleteBtn.addEventListener('click', executeDelete);
+
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = '/static/login.html';
+    });
+}
+
+function decodeTokenAndDisplayUser() {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const username = payload.sub;
+        userNameDisplay.textContent = username;
+        userAvatar.textContent = username.charAt(0).toUpperCase();
+    } catch (e) {
+        console.error("Invalid token");
+    }
+}
 
 // Theme Management
 function initTheme() {
@@ -73,10 +103,29 @@ function setTheme(theme) {
     }
 }
 
+// Intercept fetch calls
+async function apiFetch(url, options = {}) {
+    if (!options.headers) {
+        options.headers = {};
+    }
+    options.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+    
+    const response = await fetch(url, options);
+    
+    if (response.status === 401) {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        window.location.href = '/static/login.html';
+        throw new Error('Authentication expired. Please login again.');
+    }
+    
+    return response;
+}
+
 // API Calls
 async function fetchStudents() {
     try {
-        const response = await fetch(API_URL);
+        const response = await apiFetch(API_URL);
         if (!response.ok) throw new Error('Failed to fetch students');
         
         students = await response.json();
@@ -103,7 +152,7 @@ async function handleFormSubmit(e) {
         const method = isEditMode ? 'PUT' : 'POST';
         const url = isEditMode ? `${API_URL}/${studentData.id}` : API_URL;
         
-        const response = await fetch(url, {
+        const response = await apiFetch(url, {
             method: method,
             headers: {
                 'Content-Type': 'application/json'
@@ -141,7 +190,7 @@ async function executeDelete() {
     if (studentToDelete === null) return;
     
     try {
-        const response = await fetch(`${API_URL}/${studentToDelete}`, {
+        const response = await apiFetch(`${API_URL}/${studentToDelete}`, {
             method: 'DELETE'
         });
         
@@ -149,7 +198,6 @@ async function executeDelete() {
         
         showToast('Student deleted');
         
-        // If we are currently editing the deleted student, reset the form
         if (formMode.value === 'edit' && parseInt(inputId.value) === studentToDelete) {
             resetForm();
         }
@@ -204,21 +252,18 @@ window.populateEditForm = function(id) {
     const student = students.find(s => s.id === id);
     if (!student) return;
     
-    // Update UI headers
     formTitle.textContent = 'Edit Student Record';
     formSubtitle.textContent = `Updating information for ${student.name}`;
     formMode.value = 'edit';
     saveBtn.textContent = 'Update Record';
     cancelBtn.style.display = 'inline-flex';
     
-    // Populate fields
     inputId.value = student.id;
     inputId.readOnly = true; 
     inputName.value = student.name;
     inputAge.value = student.age;
     inputCourse.value = student.course;
     
-    // Scroll to top if on mobile
     if (window.innerWidth <= 900) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -255,12 +300,8 @@ function showToast(message, type = 'success') {
         toast.classList.remove('error');
     }
     
-    // Reset animation by removing and re-adding class
     toast.classList.remove('show');
-    
-    // Force reflow
     void toast.offsetWidth;
-    
     toast.classList.add('show');
     
     toastTimeout = setTimeout(() => {
