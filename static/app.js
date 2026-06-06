@@ -19,6 +19,11 @@ const themeToggleBtn = document.getElementById('themeToggleBtn');
 const themeIconLight = document.getElementById('themeIconLight');
 const themeIconDark = document.getElementById('themeIconDark');
 
+// Modal Elements
+const confirmModal = document.getElementById('confirmModal');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
 // Form Inputs
 const inputId = document.getElementById('studentId');
 const inputName = document.getElementById('studentName');
@@ -27,6 +32,7 @@ const inputCourse = document.getElementById('studentCourse');
 
 // State
 let students = [];
+let studentToDelete = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,6 +45,9 @@ studentForm.addEventListener('submit', handleFormSubmit);
 refreshBtn.addEventListener('click', fetchStudents);
 cancelBtn.addEventListener('click', resetForm);
 if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+
+cancelDeleteBtn.addEventListener('click', closeConfirmModal);
+confirmDeleteBtn.addEventListener('click', executeDelete);
 
 // Theme Management
 function initTheme() {
@@ -117,11 +126,22 @@ async function handleFormSubmit(e) {
     }
 }
 
-window.deleteStudent = async function(id) {
-    if (!confirm('Are you sure you want to delete this student record?')) return;
+// Modal handling for Delete
+window.deleteStudent = function(id) {
+    studentToDelete = id;
+    confirmModal.classList.add('active');
+}
+
+function closeConfirmModal() {
+    confirmModal.classList.remove('active');
+    studentToDelete = null;
+}
+
+async function executeDelete() {
+    if (studentToDelete === null) return;
     
     try {
-        const response = await fetch(`${API_URL}/${id}`, {
+        const response = await fetch(`${API_URL}/${studentToDelete}`, {
             method: 'DELETE'
         });
         
@@ -130,15 +150,17 @@ window.deleteStudent = async function(id) {
         showToast('Student deleted');
         
         // If we are currently editing the deleted student, reset the form
-        if (formMode.value === 'edit' && parseInt(inputId.value) === id) {
+        if (formMode.value === 'edit' && parseInt(inputId.value) === studentToDelete) {
             resetForm();
         }
         
+        closeConfirmModal();
         fetchStudents();
         
     } catch (error) {
         showToast(error.message, 'error');
         console.error(error);
+        closeConfirmModal();
     }
 }
 
@@ -155,8 +177,12 @@ function renderTable() {
     
     studentTableBody.innerHTML = '';
     
-    students.forEach(student => {
+    students.forEach((student, index) => {
         const row = document.createElement('tr');
+        row.className = 'row-enter';
+        // Add staggered delay
+        row.style.animationDelay = `${index * 0.05}s`;
+        
         row.innerHTML = `
             <td><span class="id-badge">${student.id}</span></td>
             <td class="student-name">${student.name}</td>
@@ -210,7 +236,11 @@ function resetForm() {
 }
 
 // Toast Notification
+let toastTimeout;
+
 function showToast(message, type = 'success') {
+    clearTimeout(toastTimeout);
+    
     toastMessage.textContent = message;
     
     const iconSvg = type === 'error' 
@@ -225,9 +255,15 @@ function showToast(message, type = 'success') {
         toast.classList.remove('error');
     }
     
+    // Reset animation by removing and re-adding class
+    toast.classList.remove('show');
+    
+    // Force reflow
+    void toast.offsetWidth;
+    
     toast.classList.add('show');
     
-    setTimeout(() => {
+    toastTimeout = setTimeout(() => {
         toast.classList.remove('show');
-    }, 3000);
+    }, 4000);
 }
