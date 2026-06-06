@@ -100,15 +100,39 @@
                     </button>
                 </div>
 
-                <div class="card table-wrapper glass-effect animate-in slide-in-right">
+                <!-- Dashboard Stats -->
+                <div class="directory-stats animate-in slide-in-top" style="animation-delay: 0.1s">
+                    <div class="stat-card glass-effect">
+                        <div class="stat-label">Total Students</div>
+                        <div class="stat-value" id="statTotal">0</div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-label">Active Programs</div>
+                        <div class="stat-value" id="statPrograms">0</div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-label">Average Age</div>
+                        <div class="stat-value" id="statAvgAge">0</div>
+                    </div>
+                </div>
+
+                <!-- Controls & Search -->
+                <div class="directory-controls animate-in slide-in-top" style="animation-delay: 0.15s">
+                    <div class="search-wrapper glass-effect">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search by name or course...">
+                    </div>
+                </div>
+
+                <div class="card table-wrapper glass-effect animate-in slide-in-right" style="animation-delay: 0.2s">
                     <div class="table-container">
                         <table class="data-table" id="studentTable">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>STUDENT NAME</th>
-                                    <th>COURSE / PROGRAM</th>
-                                    <th>AGE</th>
+                                    <th class="sortable" data-sort="id">ID <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="name">STUDENT NAME <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="course">COURSE / PROGRAM <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="age">AGE <span class="sort-icon"></span></th>
                                     <th class="text-right">ACTIONS</th>
                                 </tr>
                             </thead>

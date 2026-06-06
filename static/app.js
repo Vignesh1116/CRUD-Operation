@@ -35,6 +35,13 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userNameDisplay = document.getElementById('userNameDisplay');
 const userAvatar = document.getElementById('userAvatar');
 
+// Advanced Directory Elements
+const searchInput = document.getElementById('searchInput');
+const statTotal = document.getElementById('statTotal');
+const statPrograms = document.getElementById('statPrograms');
+const statAvgAge = document.getElementById('statAvgAge');
+const sortableHeaders = document.querySelectorAll('th.sortable');
+
 // Form Inputs
 const inputId = document.getElementById('studentId');
 const inputName = document.getElementById('studentName');
@@ -44,11 +51,15 @@ const inputCourse = document.getElementById('studentCourse');
 // State
 let students = [];
 let studentToDelete = null;
+let searchQuery = '';
+let currentSortColumn = 'id';
+let currentSortDirection = 'asc';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     decodeTokenAndDisplayUser();
+    updateSortHeaders();
     fetchStudents();
 });
 
@@ -65,6 +76,36 @@ if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         localStorage.removeItem('token');
         window.location.href = '/static/login.html';
+    });
+}
+
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase();
+        renderTable();
+    });
+}
+
+sortableHeaders.forEach(header => {
+    header.addEventListener('click', () => {
+        const column = header.getAttribute('data-sort');
+        if (currentSortColumn === column) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSortColumn = column;
+            currentSortDirection = 'asc';
+        }
+        updateSortHeaders();
+        renderTable();
+    });
+});
+
+function updateSortHeaders() {
+    sortableHeaders.forEach(header => {
+        header.classList.remove('asc', 'desc');
+        if (header.getAttribute('data-sort') === currentSortColumn) {
+            header.classList.add(currentSortDirection);
+        }
     });
 }
 
@@ -129,6 +170,7 @@ async function fetchStudents() {
         if (!response.ok) throw new Error('Failed to fetch students');
         
         students = await response.json();
+        updateDashboardStats();
         renderTable();
     } catch (error) {
         showToast('Error loading students', 'error');
@@ -212,9 +254,47 @@ async function executeDelete() {
     }
 }
 
+// Dashboard Stats
+function updateDashboardStats() {
+    if (students.length === 0) {
+        statTotal.textContent = '0';
+        statPrograms.textContent = '0';
+        statAvgAge.textContent = '0';
+        return;
+    }
+    
+    statTotal.textContent = students.length;
+    
+    const programs = new Set(students.map(s => s.course.toLowerCase()));
+    statPrograms.textContent = programs.size;
+    
+    const totalAge = students.reduce((sum, s) => sum + s.age, 0);
+    statAvgAge.textContent = Math.round(totalAge / students.length);
+}
+
 // UI Rendering
 function renderTable() {
-    if (students.length === 0) {
+    // 1. Filter
+    let filteredStudents = students.filter(s => {
+        if (!searchQuery) return true;
+        return s.name.toLowerCase().includes(searchQuery) || 
+               s.course.toLowerCase().includes(searchQuery);
+    });
+    
+    // 2. Sort
+    filteredStudents.sort((a, b) => {
+        let valA = a[currentSortColumn];
+        let valB = b[currentSortColumn];
+        
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        
+        if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    if (filteredStudents.length === 0) {
         studentTable.style.display = 'none';
         emptyState.style.display = 'flex';
         return;
@@ -225,15 +305,34 @@ function renderTable() {
     
     studentTableBody.innerHTML = '';
     
-    students.forEach((student, index) => {
+    filteredStudents.forEach((student, index) => {
         const row = document.createElement('tr');
         row.className = 'row-enter';
-        // Add staggered delay
-        row.style.animationDelay = `${index * 0.05}s`;
+        // Add staggered delay (cap at 10 items for performance)
+        row.style.animationDelay = `${(index % 10) * 0.05}s`;
+        
+        // Avatar generation
+        const nameParts = student.name.split(' ');
+        let initials = '';
+        if (nameParts.length >= 2) {
+            initials = nameParts[0][0] + nameParts[1][0];
+        } else {
+            initials = student.name.substring(0, 2);
+        }
+        initials = initials.toUpperCase();
+        
+        const colors = ['#f43f5e', '#8b5cf6', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899'];
+        const colorIndex = student.name.length % colors.length;
+        const avatarColor = colors[colorIndex];
         
         row.innerHTML = `
             <td><span class="id-badge">${student.id}</span></td>
-            <td class="student-name">${student.name}</td>
+            <td>
+                <div class="student-name-cell">
+                    <div class="student-avatar" style="background-color: ${avatarColor}">${initials}</div>
+                    <span class="student-name">${student.name}</span>
+                </div>
+            </td>
             <td>${student.course}</td>
             <td>${student.age}</td>
             <td>
