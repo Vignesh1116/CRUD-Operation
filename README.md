@@ -76,5 +76,6 @@ Once the application is running, you can access the automatic interactive API do
 
 ---
 <div align="center">
-  <i>Built with ❤️ using FastAPI.</i>
+  <i>Built by vignesh using FastAPI.</i><br>
+  <i>Happy Coding!</i>
 </div>
